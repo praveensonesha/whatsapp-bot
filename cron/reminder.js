@@ -1,17 +1,9 @@
 const cron = require('node-cron');
 const axios = require('axios');
 const mysql = require('mysql2/promise');
+const dbConfig = require('./dbConfig');
 
-// Configure the MySQL pool with the promise-based API
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USERNAME,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
+const fitnessCoachPool = mysql.createPool(dbConfig.fitness_coach);
 
 const GALLABOX_API_URL = 'https://server.gallabox.com/devapi/messages/whatsapp';
 const GALLABOX_API_KEY = process.env.WAAPIKEY;
@@ -69,7 +61,7 @@ cron.schedule('0 10 * * *', async () => {
 
   try {
     // Query to find users who didn't log a workout yesterday
-    const [rows] = await pool.query(`
+    const [rows] = await fitnessCoachPool.query(`
       SELECT u.name, u.phone
       FROM users u
       LEFT JOIN workout w ON u.phone = w.phone AND DATE(w.workout_date) = ?

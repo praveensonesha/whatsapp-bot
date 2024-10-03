@@ -1,17 +1,9 @@
 const cron = require('node-cron');
 const axios = require('axios');
 const mysql = require('mysql2/promise');
+const dbConfig = require('./dbConfig'); 
 
-// Configure the MySQL pool with the promise-based API
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USERNAME,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});// Adjust the path to your DB configuration
+const fitnessCoachPool = mysql.createPool(dbConfig.fitness_coach);
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const GALLABOX_API_URL = 'https://server.gallabox.com/devapi/messages/whatsapp';
@@ -105,7 +97,7 @@ cron.schedule('0 10 * * 1', async () => {
 
   try {
     // Query to get all user profiles
-    const [users] = await pool.query(`
+    const [users] = await fitnessCoachPool.query(`
       SELECT * FROM users
     `);
 

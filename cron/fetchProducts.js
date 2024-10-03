@@ -1,23 +1,10 @@
 const cron = require('node-cron');
 const mysql = require('mysql2/promise');
+const dbConfig = require('../config/db'); 
 
-// Database connections
-const usersDbConfig = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USERNAME,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-};
-
-const invoicesDbConfig = {
-  host: process.env.CUBE_HOST,
-  user: process.env.CUBE_USERNAME,
-  password: process.env.CUBE_PASS,
-  database: process.env.CUBE_NAME
-};
+// Create database pools
+const fitnessCoachPool = mysql.createPool(dbConfig.fitness_coach);
+const cubeClubPool = mysql.createPool(dbConfig.cube_club);
 
 // Function to synchronize products
 const syncProducts = async () => {
@@ -25,24 +12,20 @@ const syncProducts = async () => {
   let connectionInvoices;
 
   try {
-    // Create database connections
-    connectionUsers = await mysql.createPool(usersDbConfig);
-    connectionInvoices = await mysql.createPool(invoicesDbConfig);
-
     // Query to get products bought by each user
     const userQuery = `
       SELECT DISTINCT(phone) FROM users;
     `;
     
     // Fetch user phone numbers
-    const [rows] = await connectionUsers.query(userQuery);
+    const [rows] = await fitnessCoachPool.query(userQuery);
     const normalizedPhones = rows.map(row => row.phone.slice(-10));
     const jsonPhones = JSON.stringify(normalizedPhones);
     
     console.log("Normalized phones:", normalizedPhones);
     console.log("JSON phones:", jsonPhones);
 
-    // Invoice query
+    // Query to fetch invoice data from the Cube Club database
     const invoiceQuery = `
       SELECT u.mobile, GROUP_CONCAT(pdc.product_name) AS products
       FROM customer_invoices ci
@@ -53,7 +36,7 @@ const syncProducts = async () => {
     `;
     
     // Fetch invoice data
-    const [invoiceRows] = await connectionInvoices.query(invoiceQuery, [jsonPhones]);
+    const [invoiceRows] = await cubeClubPool.query(invoiceQuery, [jsonPhones]);
     console.log("Invoice rows:", invoiceRows);
 
     // Prepare and execute update queries
@@ -64,7 +47,7 @@ const syncProducts = async () => {
         WHERE phone = ?;
       `;
       // Use parameterized queries to prevent SQL injection
-      await connectionUsers.query(updateProductQuery, [user.products, `91${user.mobile}`]);
+      await fitnessCoachPool.query(updateProductQuery, [user.products, `91${user.mobile}`]);
     });
 
     // Wait for all update queries to complete
@@ -72,11 +55,7 @@ const syncProducts = async () => {
 
   } catch (err) {
     console.error("Error in syncProducts:", err);
-  } finally {
-    // Close connections
-    if (connectionUsers) await connectionUsers.end();
-    if (connectionInvoices) await connectionInvoices.end();
-  }
+  } 
 };
 
 // Schedule the cron job

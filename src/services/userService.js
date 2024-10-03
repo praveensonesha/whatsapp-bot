@@ -1,4 +1,5 @@
-const pool = require("../../config/db");
+const dbConfig = require('../config/db'); 
+const fitnessCoachPool = mysql.createPool(dbConfig.fitness_coach);
 
 const updateProfileService = async (payload) => {
     const {name,phone,email,age,goal,diet} = payload;
@@ -16,7 +17,7 @@ const updateProfileService = async (payload) => {
         `;
   
         // Execute the query
-        await pool.query(query, [name, phone, email, age, goal, diet]);
+        await fitnessCoachPool .query(query, [name, phone, email, age, goal, diet]);
         return {"message":"Profile updated !"};
         
     } catch (error) {
@@ -31,7 +32,7 @@ const logWorkoutService = async (payload) => {
    const payld = {phone:phone1,description:description};
    console.log(JSON.stringify(payld));
     try {
-        const [[result]] = await pool.query(`CALL handleMomentum(?)`,[JSON.stringify(payld)]);
+        const [[result]] = await fitnessCoachPool .query(`CALL handleMomentum(?)`,[JSON.stringify(payld)]);
         console.log(result);
     
         return {"message": `Workout logged !\nYour Momentum Score : ${result[0].momentum} 🚀🚀\nStreak: ${result[0].streak} ⚡`};
@@ -61,7 +62,7 @@ const generateReportService = async(payload)=>{
     WHERE u.phone = ? 
     GROUP BY u.id;
   `;
-    const result=  await pool.query(query, [phone]);
+    const result=  await fitnessCoachPool .query(query, [phone]);
     console.log(result);
     return result;
         
@@ -93,7 +94,7 @@ const userQueryService = async(payload)=>{
       WHERE u.phone = ?
       GROUP BY u.id;
           `;
-  const result=  await pool.query(query, [phone]);
+  const result=  await fitnessCoachPool .query(query, [phone]);
   console.log(result);
   return result;
       
@@ -125,7 +126,7 @@ const qnaDocQueryService = async(payload)=>{
       WHERE u.phone = ?
       GROUP BY u.id;
           `;
-  const result=  await pool.query(query, [phone]);
+  const result=  await fitnessCoachPool .query(query, [phone]);
   console.log(result);
   return result;
       

@@ -1,14 +1,23 @@
-const mysql = require('mysql2/promise');
+// dbConfig.js
+module.exports = {
+    fitness_coach: {
+      host: process.env.DB_HOST_1,
+      user: process.env.DB_USERNAME_1,
+      password: process.env.DB_PASS_1,
+      database: process.env.DB_NAME_1,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+    },
 
-const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USERNAME,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
-
-
-module.exports = pool;
+    cube_club: {
+    host: process.env.DB_HOST_2,
+    user: process.env.DB_USERNAME_2,
+    password: process.env.DB_PASS_2,
+    database: process.env.DB_NAME_2,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+    }    
+  };
+  

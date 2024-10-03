@@ -1,4 +1,4 @@
-const { pool } = require('../../config/db.js');
+const { fitnessCoachPool } = require('../../config/db.js');
 const {updateProfileService,logWorkoutService, generateReportService,userQueryService,qnaDocQueryService} = require('../services/userService.js');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);

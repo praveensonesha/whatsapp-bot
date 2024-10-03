@@ -10,7 +10,11 @@ router.post('/updateProfile',updateProfile);
 router.post('/logWorkout',logWorkout);
 router.post('/generateReport',generateReport);
 router.post('/userQuery',userQuery);
-router.post('/qnaDocQuery',qnaDocQuery)
+router.post('/qnaDocQuery',qnaDocQuery);
+
+//cube club v2 requirements
+router.post('/checkCoins',checkCoins);
+router.post('/leaderboard',leaderboard);
 
 
 module.exports = router;
