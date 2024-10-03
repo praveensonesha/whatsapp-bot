@@ -1,5 +1,7 @@
-const dbConfig = require('../config/db'); 
+const dbConfig = require('../../config/db.js'); 
+const mysql = require('mysql2/promise');
 const fitnessCoachPool = mysql.createPool(dbConfig.fitness_coach);
+const cubeClubPool = mysql.createPool(dbConfig.cube_club);
 
 const updateProfileService = async (payload) => {
     const {name,phone,email,age,goal,diet} = payload;
@@ -137,6 +139,33 @@ const qnaDocQueryService = async(payload)=>{
   
 }
 
+const checkCoinsService = async (payload) => {
+  const { phone } = payload;
+
+  try {
+      // Query to retrieve coins for the user
+      const query = `
+        SELECT coins 
+        FROM user 
+        WHERE phone = ?
+      `;
+      
+      // Execute the query
+      const [[result]] = await cubeClubPool.query(query, phone);
+      
+      if (result) {
+          console.log(`Coins for user: ${result.coins}`);
+          return { "message": `You have ${result.coins} coins 🪙` };
+      } else {
+          return { "message": "User not found" };
+      }
+      
+  } catch (error) {
+      console.error("Error in checkCoinsService:", error);
+      throw error;
+  }
+};
 
 
-module.exports = { updateProfileService,logWorkoutService,generateReportService,userQueryService,qnaDocQueryService};
+
+module.exports = { updateProfileService,logWorkoutService,generateReportService,userQueryService,qnaDocQueryService,checkCoinsService};

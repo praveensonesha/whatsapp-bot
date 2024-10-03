@@ -1,7 +1,7 @@
 const cron = require('node-cron');
 const axios = require('axios');
 const mysql = require('mysql2/promise');
-const dbConfig = require('./dbConfig'); 
+const dbConfig = require('../config/db'); 
 
 const fitnessCoachPool = mysql.createPool(dbConfig.fitness_coach);
 const { GoogleGenerativeAI } = require("@google/generative-ai");

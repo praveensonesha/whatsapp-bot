@@ -1,5 +1,5 @@
 const { fitnessCoachPool } = require('../../config/db.js');
-const {updateProfileService,logWorkoutService, generateReportService,userQueryService,qnaDocQueryService} = require('../services/userService.js');
+const {updateProfileService,logWorkoutService, generateReportService,userQueryService,qnaDocQueryService,checkCoinsService} = require('../services/userService.js');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
@@ -147,9 +147,26 @@ const qnaDocQuery = async(req,res)=>{
     
 }
 
+const checkCoins = async(req,res)=>{
+    console.log('server call works!');
+    const payload = req.body;
+    const {phone} = payload;
+    console.log(phone);
+    try {
+        const result = await checkCoinsService(payload);
+        return res.status(200).send(result);
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({
+           success:false,
+           message:'Error in checking the coins ! Please try again...',
+           error ,
+        });
+        
+    }
+}
 
 
 
 
-
-module.exports= {updateProfile,logWorkout,generateReport,userQuery,qnaDocQuery};
+module.exports= {updateProfile,logWorkout,generateReport,userQuery,qnaDocQuery,checkCoins};
