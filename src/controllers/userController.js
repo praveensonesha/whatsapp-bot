@@ -1,5 +1,5 @@
 const { fitnessCoachPool } = require('../../config/db.js');
-const {updateProfileService,logWorkoutService, generateReportService,userQueryService,qnaDocQueryService,checkCoinsService} = require('../services/userService.js');
+const {updateProfileService,logWorkoutService, generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService} = require('../services/userService.js');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
@@ -166,7 +166,23 @@ const checkCoins = async(req,res)=>{
     }
 }
 
+const getLeaderboard = async (req, res) => {
+    const { mobile } = req.body;
+     // Expecting mobile in the request body
+
+    try {
+        // Call the service to get leaderboard data
+        const result = await getLeaderboardService(mobile);
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Error in getLeaderboard:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to retrieve leaderboard data",
+            error: error.message,
+        });
+    }
+};
 
 
-
-module.exports= {updateProfile,logWorkout,generateReport,userQuery,qnaDocQuery,checkCoins};
+module.exports= {updateProfile,logWorkout,generateReport,userQuery,qnaDocQuery,checkCoins,getLeaderboard};

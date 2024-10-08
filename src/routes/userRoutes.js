@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Import controllers
-const {updateProfile,logWorkout,generateReport,userQuery,qnaDocQuery,checkCoins} = require('../controllers/userController.js');
+const {updateProfile,logWorkout,generateReport,userQuery,qnaDocQuery,checkCoins,getLeaderboard} = require('../controllers/userController.js');
 
 
 // Define user routes
@@ -14,7 +14,7 @@ router.post('/qnaDocQuery',qnaDocQuery);
 
 //cube club v2 requirements
 router.post('/checkCoins',checkCoins);
-// router.post('/leaderBoard',leaderBoard);
+router.post('/leaderBoard',getLeaderboard);
 
 
 module.exports = router;
