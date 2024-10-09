@@ -147,7 +147,7 @@ const checkCoinsService = async (payload) => {
       const query = `
         SELECT total_coins 
         FROM users 
-        WHERE mobile  = ?
+        WHERE mobile LIKE CONCAT('%', RIGHT(?, 10))
       `;
       
       // Execute the query
