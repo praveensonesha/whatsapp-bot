@@ -166,49 +166,12 @@ const checkCoinsService = async (payload) => {
   }
 };
 
-// const getLeaderboardService = async (mobile) => {
-//   try {
-//       // Query to get user ID from mobile
-//       const userIdQuery = `SELECT id FROM users WHERE mobile = ?`;
-//       const [[user]] = await cubeClubPool.query(userIdQuery, [mobile]);
-
-//       if (!user) {
-//           return { success: false, message: "User not found" };
-//       }
-
-//       const userId = user.id;
-
-//       // Prepare input for the stored procedure
-//       const inputJson = JSON.stringify({ user_id: userId, size: 10, page: 0 });
-
-//       // Call the stored procedure for leaderboard stats
-//       const leaderboardQuery = `CALL CubeClub_Stag.getLeaderboardStats(?)`;
-//       const [leaderboardData] = await cubeClubPool.query(leaderboardQuery, [inputJson]);
-
-//       // Get the total number of records
-//       const totalRecords = leaderboardData[1][0].total;
-
-//       // Find the rank of the user
-//       const userRank = leaderboardData[0].findIndex(user => user.user_id === userId) + 1; // Rank is index + 1
-
-//       return {
-//           success: true,
-//           message: "Leaderboard Data",
-//           userRank: userRank > 0 ? userRank : "Not ranked",
-//           totalUsers: totalRecords,
-//           topUsers: leaderboardData[0], // Top 10 users
-//       };
-
-//   } catch (error) {
-//       console.error("Error in getLeaderboardByMobile:", error);
-//       throw error; // Re-throw the error to be caught in the controller
-//   }
-// };
-
 const getLeaderboardService = async (mobile) => {
   try {
       // Query to get user ID from mobile
-      const userIdQuery = `SELECT id, first_name FROM users WHERE mobile = ?`; // Fetch first_name as well
+      const userIdQuery = `  SELECT id, first_name 
+                            FROM users 
+                            WHERE mobile LIKE CONCAT('%', RIGHT(?, 10))`; // Fetch first_name as well
       const [[user]] = await cubeClubPool.query(userIdQuery, [mobile]);
 
       if (!user) {
@@ -216,6 +179,7 @@ const getLeaderboardService = async (mobile) => {
       }
 
       const userId = user.id;
+      
 
       // Prepare input for the stored procedure
       const inputJson = JSON.stringify({ user_id: userId, size: 10, page: 0 });
@@ -233,19 +197,25 @@ const getLeaderboardService = async (mobile) => {
       // Find the logged-in user's total coins and name from leaderboard data
       const loggedInUserData = leaderboardData[0].find(user => user.user_id === userId);
       const userCoins = loggedInUserData ? loggedInUserData.total_coins : 0;
-      const userName = loggedInUserData ? loggedInUserData.first_name : "Unknown";
+      // const userName = loggedInUserData ? loggedInUserData.first_name : "Unknown";
+      const userName = user.first_name || "Unknown";
 
       // Construct the formatted leaderboard string
-      let leaderboardString = `🏆  **Leaderboard Stats**  🏆\n\n`;
-      leaderboardString += `✨ **Your Rank**: ${userRank > 0 ? userRank : "Not ranked"}\n`;
-      leaderboardString += `👤 **Name**: ${userName}\n`;
-      leaderboardString += `💰 **Total Coins**: ${userCoins}\n\n`;
+      let leaderboardString = `✨ *Your Rank*: ${userRank > 0 ? userRank : "Not ranked"}\n`;
+      leaderboardString += `👤 *Name*: ${userName}\n`;
+      leaderboardString += `💰 *Total Coins*: ${userCoins}🪙\n\n`;
 
-      leaderboardString += `📊  **Top 10 Leaderboard**  📊\n\n`;
+      leaderboardString += `📊  *Top 10 Leaderboard*  📊\n\n`;
 
-      leaderboardData[0].forEach((user, index) => {
-          leaderboardString += `${index + 1}️⃣ **Name**: ${user.first_name}\n   **Coins**: ${user.total_coins}\n\n`;
+      leaderboardData[0].slice(0, 9).forEach((user, index) => {
+        const rank = index + 1; // Calculate the rank
+        leaderboardString += `${rank}️⃣ *Name*: ${user.first_name}\n 🎖️ *Coins* : ${user.total_coins}🪙\n\n`;
       });
+
+      // Ensure to handle the case for rank 10 separately if needed
+      if (leaderboardData[0].length >= 10) {
+        leaderboardString += `🔟 *Name*: ${leaderboardData[0][9].first_name}\n  🎖️ *Coins* : ${leaderboardData[0][9].total_coins} 🪙\n\n`;
+      }
 
       leaderboardString += `💪 Keep pushing! Your hard work will pay off! 🚀`;
 
@@ -262,6 +232,55 @@ const getLeaderboardService = async (mobile) => {
   }
 };
 
+const getActiveScoreService = async (mobile) => {
+  try {
+      // Query to get user details from mobile
+      const userQuery = `
+          SELECT id, first_name, active_score 
+          FROM users 
+          WHERE mobile LIKE CONCAT('%', RIGHT(?, 10))
+      `;
+      const [[user]] = await cubeClubPool.query(userQuery, [mobile]);
+
+      if (!user) {
+          return { success: false, message: "User not found" };
+      }
+
+      const { first_name, active_score } = user;
+
+      // Construct the response message
+      let responseMessage = `✨ *Hello ${first_name}*, here’s your Active Score: `;
+
+      // Check if active_score is a valid number
+      if (active_score !== null && !isNaN(active_score)) {
+          // Convert active_score to a number if it is a string
+          const score = Number(active_score);
+          responseMessage += `${parseFloat(score).toString()} % \n`;  // Remove unnecessary zeros
+          // Prepare motivational message based on the score range
+          if (score >= 90) {
+              responseMessage += `🎉 Amazing work! You're really killing it! Keep it up! 💪`;
+          } else if (score >= 70) {
+              responseMessage += `🔥 Great job! You're on fire! Just a little more effort to reach the top! 🚀`;
+          } else if (score >= 50) {
+              responseMessage += `💪 Good work! You're doing well, but there’s still room for improvement! Let's push harder!`;
+          } else {
+              responseMessage += `🤔 You can do better! Let’s get moving and boost that score! Every workout counts! 🏋️‍♂️`;
+          }
+      } else {
+          responseMessage += `Not available. It seems you haven't posted any workouts yet. Let's get started and boost that score! 🏃‍♂️💨`;
+      }
+
+      return {
+          success: true,
+          message: "Active Score Data",
+          activeScore: responseMessage,
+      };
+
+  } catch (error) {
+      console.error("Error in getActiveScoreService:", error);
+      throw error; 
+  }
+};
 
 
-module.exports = { updateProfileService,logWorkoutService,generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService};
+module.exports = { updateProfileService,logWorkoutService,generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService,getActiveScoreService};

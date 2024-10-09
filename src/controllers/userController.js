@@ -1,5 +1,5 @@
 const { fitnessCoachPool } = require('../../config/db.js');
-const {updateProfileService,logWorkoutService, generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService} = require('../services/userService.js');
+const {updateProfileService,logWorkoutService, generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService,getActiveScoreService} = require('../services/userService.js');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
@@ -184,5 +184,28 @@ const getLeaderboard = async (req, res) => {
     }
 };
 
+const getActiveScore = async (req, res) => {
+    const { mobile } = req.body;
+     // Expecting mobile in the request body
 
-module.exports= {updateProfile,logWorkout,generateReport,userQuery,qnaDocQuery,checkCoins,getLeaderboard};
+    try {
+        const result = await getActiveScoreService(mobile);
+        // Log the user's name and active score for debugging
+        if (result.success) {
+            const activeScoreMatch = result.activeScore.match(/Hello (.*?),/);
+            const userName = activeScoreMatch ? activeScoreMatch[1] : "User";
+            console.log(`User: ${userName}, Active Score: ${result.activeScore}`);
+        }
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Error fetching active score by mobile number:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error' ,
+            error: error.message,
+        });
+    }
+};
+
+
+module.exports= {updateProfile,logWorkout,generateReport,userQuery,qnaDocQuery,checkCoins,getLeaderboard,getActiveScore};
