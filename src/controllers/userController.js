@@ -1,28 +1,43 @@
 const { fitnessCoachPool } = require('../../config/db.js');
-const {updateProfileService,logWorkoutService, generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService,getActiveScoreService} = require('../services/userService.js');
+const {updateProfileService,checkProfileCompletionService,logWorkoutService, generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService,getActiveScoreService} = require('../services/userService.js');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
 const { ChromaClient } = require('chromadb');
 
-const updateProfile = async(req,res)=>{
-    console.log('server call works!');
+const updateProfile = async (req, res) => {
     const payload = req.body;
-    const {name,phone,email,age,goal,diet} = payload;
-    console.log(name,phone,email,age,goal,diet);
+    const { first_name, email, mobile, dob, height, weight, exercise_frequency } = payload;
+
     try {
-        const result = await updateProfileService(payload);
+        const result = await updateProfileService({ first_name, email, mobile, dob, height, weight, exercise_frequency });
         return res.status(200).send(result);
     } catch (error) {
-        console.log(error)
-        res.status(500).send({
-           success:false,
-           message:'Error in signup',
-           error ,
+        console.log(error);
+        return res.status(500).send({
+            success: false,
+            message: 'Error in updating profile',
+            error,
         });
-        
     }
-}
+};
+
+const checkProfileCompletion = async (req, res) => {
+    const { mobile } = req.body; 
+
+    try {
+        const result = await checkProfileCompletionService(mobile);
+        return res.status(200).send(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            success: false,
+            message: 'Error in checking profile completion',
+            error,
+        });
+    }
+};
+
 
 const logWorkout = async(req,res)=>{
     console.log('server call works!');
@@ -208,4 +223,6 @@ const getActiveScore = async (req, res) => {
 };
 
 
-module.exports= {updateProfile,logWorkout,generateReport,userQuery,qnaDocQuery,checkCoins,getLeaderboard,getActiveScore};
+
+
+module.exports= {updateProfile,checkProfileCompletion, logWorkout,generateReport,userQuery,qnaDocQuery,checkCoins,getLeaderboard,getActiveScore};

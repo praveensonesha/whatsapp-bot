@@ -4,28 +4,73 @@ const fitnessCoachPool = mysql.createPool(dbConfig.fitness_coach);
 const cubeClubPool = mysql.createPool(dbConfig.cube_club);
 
 const updateProfileService = async (payload) => {
-    const {name,phone,email,age,goal,diet} = payload;
-    console.log(name,phone,email,age,goal,diet);
-    try {
-        const query = `
-        INSERT INTO users (name, phone, email, age, goal, diet)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-          name = VALUES(name),
-          phone = VALUES(phone),
-          age = VALUES(age),
-          goal = VALUES(goal),
-          diet = VALUES(diet);
-        `;
-  
-        // Execute the query
-        await fitnessCoachPool .query(query, [name, phone, email, age, goal, diet]);
-        return {"message":"Profile updated !"};
-        
-    } catch (error) {
-        console.error("Error in signUpUserService:", error);
-        throw error;
-    }
+  const { first_name, email, mobile, dob, height, weight, exercise_frequency } = payload;
+
+  // Log the payload to check if all fields are coming correctly
+  console.log("Payload received:", payload);
+
+  try {
+      const query = `
+      INSERT INTO users (first_name, email, mobile, dob, height, weight, exercise_frequency)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        first_name = VALUES(first_name),
+        mobile = VALUES(mobile),
+        dob = VALUES(dob),
+        height = VALUES(height),
+        weight = VALUES(weight),
+        exercise_frequency = VALUES(exercise_frequency),
+        updated_at = NOW();
+      `;
+
+      // Execute the query
+      await cubeClubPool.query(query, [first_name, email, mobile, dob, height, weight, exercise_frequency]);
+      return { message: "Profile updated!" };
+      
+      
+  } catch (error) {
+      console.error("Error in updateProfileService:", error);
+      throw error;
+  }
+};
+
+const checkProfileCompletionService = async (mobile) => {
+  try {
+      const query = `
+          SELECT first_name, email, mobile, dob, height, weight, exercise_frequency 
+          FROM users 
+          WHERE mobile LIKE CONCAT('%', RIGHT(?, 10))
+      `;
+
+      const [rows] = await cubeClubPool.query(query, [mobile]);
+
+      if (rows.length === 0) {
+          return { isComplete: false, missingFields: ["first_name", "email", "mobile", "dob", "height", "weight", "exercise_frequency"], message: "User not found." };
+      }
+
+      const user = rows[0];
+      const missingFields = [];
+
+      if (!user.first_name) missingFields.push("first_name");
+      if (!user.email) missingFields.push("email");
+      if (!user.mobile) missingFields.push("mobile");
+      if (!user.dob) missingFields.push("dob");
+      if (!user.height) missingFields.push("height");
+      if (!user.weight) missingFields.push("weight");
+      if (!user.exercise_frequency) missingFields.push("exercise_frequency");
+
+      const isComplete = missingFields.length === 0;
+
+      return {
+          isComplete,
+          missingFields,
+          message: isComplete ? "Profile is complete." : "Profile is incomplete. Please provide the missing fields."
+      };
+      
+  } catch (error) {
+      console.error("Error in checkProfileCompletionService:", error);
+      throw error;
+  }
 };
 
 const logWorkoutService = async (payload) => {
@@ -283,4 +328,5 @@ const getActiveScoreService = async (mobile) => {
 };
 
 
-module.exports = { updateProfileService,logWorkoutService,generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService,getActiveScoreService};
+
+module.exports = { updateProfileService,checkProfileCompletionService,logWorkoutService,generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService,getActiveScoreService};
