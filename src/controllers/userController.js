@@ -1,5 +1,7 @@
 const { fitnessCoachPool } = require('../../config/db.js');
-const {updateProfileService,checkProfileCompletionService,logWorkoutService, generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService,getActiveScoreService} = require('../services/userService.js');
+
+const {updateProfileService,checkProfileCompletionService,logWorkoutService, generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService,getActiveScoreService, botCommunityIntroductionService, updateNudgeSubscriptionService} = require('../services/userService.js');
+
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
@@ -222,7 +224,36 @@ const getActiveScore = async (req, res) => {
     }
 };
 
+const botCommunityIntroduction = async (req, res) => {
+    try {
+        const result = await botCommunityIntroductionService();
+        return res.status(200).send(result);
+    } catch (error) {
+        console.error("Error in whatsappBotIntroduction:", error);
+        res.status(500).send({
+            success: false,
+            message: 'Error in fetching bot introduction',
+            error,
+        });
+    }
+};
+
+const requestNudgeSubscription = async (req, res) => {
+    const { phone, subscribe } = req.body; // Assuming `subscribe` is a boolean indicating subscription status
+
+    try {
+        const result = await updateNudgeSubscriptionService(phone, subscribe);
+        return res.status(200).send(result);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            message: 'Error updating nudge subscription',
+            error,
+        });
+    }
+};
 
 
+module.exports= {updateProfile,logWorkout,checkProfileCompletion,generateReport,userQuery,qnaDocQuery,checkCoins,getLeaderboard,getActiveScore, botCommunityIntroduction, requestNudgeSubscription};
 
-module.exports= {updateProfile,checkProfileCompletion, logWorkout,generateReport,userQuery,qnaDocQuery,checkCoins,getLeaderboard,getActiveScore};
