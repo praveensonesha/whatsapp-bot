@@ -6,8 +6,6 @@ const cubeClubPool = mysql.createPool(dbConfig.cube_club);
 const updateProfileService = async (payload) => {
   const { first_name, email, mobile, dob, height, weight, exercise_frequency } = payload;
 
-  // Log the payload to check if all fields are coming correctly
-  console.log("Payload received:", payload);
 
   try {
       const query = `

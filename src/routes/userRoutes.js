@@ -3,7 +3,6 @@ const router = express.Router();
 const {updateProfile,logWorkout,generateReport,userQuery,qnaDocQuery,checkCoins,getLeaderboard,getActiveScore,checkProfileCompletion, botCommunityIntroduction, requestNudgeSubscription} = require('../controllers/userController.js');
 
 
-
 // Define user routes
 router.post('/updateProfile',updateProfile);
 router.post('/logWorkout',logWorkout);
