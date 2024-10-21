@@ -370,6 +370,47 @@ const updateNudgeSubscriptionService = async (phone, subscribe) => {
   }
 };
 
+const checkClubMembershipService = async (mobile) => {
+  try {
+      const query = `
+          SELECT cm.club_id, c.club_name 
+          FROM club_members cm 
+          JOIN users u ON cm.user_id = u.id 
+          JOIN clubs c ON cm.club_id = c.club_id 
+          WHERE u.mobile = ?;
+      `;
 
+      const [rows] = await cubeClubPool.query(query, [mobile]);
 
-module.exports = { updateProfileService,checkProfileCompletionService,logWorkoutService,generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService,getActiveScoreService,botCommunityIntroductionService,updateNudgeSubscriptionService};
+      if (rows.length === 0) {
+          return { isMember: false, message: "User is not a member of any club." };
+      }
+
+      const clubs = rows.map(row => ({ club_id: row.club_id, club_name: row.club_name }));
+
+      return {
+          isMember: true,
+          clubs,
+          message: "User is a member of the following clubs."
+      };
+      
+  } catch (error) {
+      console.error("Error in checkMembershipService:", error);
+      throw error;
+  }
+};
+
+module.exports = { 
+  updateProfileService,
+  checkProfileCompletionService,
+  logWorkoutService,
+  generateReportService,
+  userQueryService,
+  qnaDocQueryService,
+  checkCoinsService,
+  getLeaderboardService,
+  getActiveScoreService,
+  botCommunityIntroductionService,
+  updateNudgeSubscriptionService,
+  checkClubMembershipService
+};

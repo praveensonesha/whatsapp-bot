@@ -1,6 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const {updateProfile,logWorkout,generateReport,userQuery,qnaDocQuery,checkCoins,getLeaderboard,getActiveScore,checkProfileCompletion, botCommunityIntroduction, requestNudgeSubscription} = require('../controllers/userController.js');
+const {
+    updateProfile,
+    logWorkout,
+    generateReport,
+    userQuery,
+    qnaDocQuery,
+    checkCoins,
+    getLeaderboard,
+    getActiveScore,
+    checkProfileCompletion, 
+    botCommunityIntroduction, 
+    requestNudgeSubscription,
+    checkClubMembership
+} = require('../controllers/userController.js');
 
 
 // Define user routes
@@ -18,7 +31,7 @@ router.post('/leaderBoard',getLeaderboard);
 router.post('/activeScore',getActiveScore);
 router.post('/botCommunityIntroduction', botCommunityIntroduction);
 router.post('/requestNudgeSubscription', requestNudgeSubscription);
-
+router.post('/checkClubMembership', checkClubMembership);
 
 
 module.exports = router;
