@@ -373,7 +373,7 @@ const updateNudgeSubscriptionService = async (phone, subscribe) => {
 const checkClubMembershipService = async (mobile) => {
   try {
       const query = `
-          SELECT cm.club_id, c.club_name 
+          SELECT cm.club_id 
           FROM club_members cm 
           JOIN users u ON cm.user_id = u.id 
           JOIN clubs c ON cm.club_id = c.club_id 
