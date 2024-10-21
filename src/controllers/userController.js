@@ -1,9 +1,24 @@
 const { fitnessCoachPool } = require('../../config/db.js');
-const {updateProfileService,checkProfileCompletionService,logWorkoutService, generateReportService,userQueryService,qnaDocQueryService,checkCoinsService,getLeaderboardService,getActiveScoreService, botCommunityIntroductionService, updateNudgeSubscriptionService} = require('../services/userService.js');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
 const { ChromaClient } = require('chromadb');
+
+const {
+    updateProfileService,
+    checkProfileCompletionService,
+    logWorkoutService, 
+    generateReportService,
+    userQueryService,
+    qnaDocQueryService,
+    checkCoinsService,
+    getLeaderboardService,
+    getActiveScoreService, 
+    botCommunityIntroductionService, 
+    updateNudgeSubscriptionService,
+    checkClubMembershipService
+} = require('../services/userService.js');
+
 
 const updateProfile = async (req, res) => {
     const payload = req.body;
@@ -252,6 +267,35 @@ const requestNudgeSubscription = async (req, res) => {
     }
 };
 
+const checkClubMembership = async (req, res) => {
+    const { mobile } = req.body; 
 
-module.exports= {updateProfile,logWorkout,checkProfileCompletion,generateReport,userQuery,qnaDocQuery,checkCoins,getLeaderboard,getActiveScore, botCommunityIntroduction, requestNudgeSubscription};
+    try {
+        const result = await checkClubMembershipService(mobile);
+        return res.status(200).send(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            success: false,
+            message: 'Error in checking membership',
+            error,
+        });
+    }
+};
+
+
+module.exports= {
+    updateProfile,
+    logWorkout,
+    checkProfileCompletion,
+    generateReport,
+    userQuery,
+    qnaDocQuery,
+    checkCoins,
+    getLeaderboard,
+    getActiveScore, 
+    botCommunityIntroduction, 
+    requestNudgeSubscription,
+    checkClubMembership
+};
 
