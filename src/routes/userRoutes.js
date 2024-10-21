@@ -12,7 +12,8 @@ const {
     checkProfileCompletion, 
     botCommunityIntroduction, 
     requestNudgeSubscription,
-    checkClubMembership
+    checkClubMembership,
+    checkIfAdmin
 } = require('../controllers/userController.js');
 
 
@@ -32,6 +33,8 @@ router.post('/activeScore',getActiveScore);
 router.post('/botCommunityIntroduction', botCommunityIntroduction);
 router.post('/requestNudgeSubscription', requestNudgeSubscription);
 router.post('/checkClubMembership', checkClubMembership);
+router.post('/checkIfAdmin', checkIfAdmin);
+
 
 
 module.exports = router;
