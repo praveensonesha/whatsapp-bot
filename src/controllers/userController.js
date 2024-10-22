@@ -286,7 +286,6 @@ const checkClubMembership = async (req, res) => {
 
 const checkIfAdmin = async (req, res) => {
     const { mobile } = req.body;
-    console.log("Controller: ",mobile);
 
     try {
         const result = await checkIfAdminService(mobile);

@@ -383,10 +383,13 @@ const checkClubMembershipService = async (mobile) => {
       const [rows] = await cubeClubPool.query(query, [mobile]);
 
       if (rows.length === 0) {
-          return { isMember: false, message: "User is not a member of any club." };
+        console.log("Membership check is working: User is not a member of any club.");
+        return { isMember: false, message: "User is not a member of any club." };
       }
 
       const clubs = rows.map(row => ({ club_id: row.club_id, club_name: row.club_name }));
+
+      console.log("Membership check is working: User is a member of", clubs.length, "club(s).");
 
       return {
           isMember: true,
@@ -411,14 +414,16 @@ const checkIfAdminService = async (mobile) => {
 
       const [rows] = await cubeClubPool.query(query, [mobile]);
 
-      console.log(rows);
 
       if (rows.length === 0) {
-          return { isAdmin: false, message: "User not found or not an admin." };
+        console.log("Admin check is working: User not found or not an admin.");
+        return { isAdmin: false, message: "User not found or not an admin." };
       }
 
       const adminId = rows[0].admin_id;
       const isAdmin = adminId !== null;
+
+      console.log("Admin check is working: User is", isAdmin ? "an admin." : "not an admin.");
 
       return {
           isAdmin,
