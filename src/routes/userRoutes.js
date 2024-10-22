@@ -13,7 +13,10 @@ const {
     botCommunityIntroduction, 
     requestNudgeSubscription,
     checkClubMembership,
-    checkIfAdmin
+    checkIfAdmin,
+    clubActiveScore,
+    clubLeaderboard
+    
 } = require('../controllers/userController.js');
 
 
@@ -34,6 +37,8 @@ router.post('/botCommunityIntroduction', botCommunityIntroduction);
 router.post('/requestNudgeSubscription', requestNudgeSubscription);
 router.post('/checkClubMembership', checkClubMembership);
 router.post('/checkIfAdmin', checkIfAdmin);
+router.post('/clubActiveScore', clubActiveScore);
+router.post('/clubLeaderboard', clubLeaderboard);
 
 
 

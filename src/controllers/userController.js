@@ -17,7 +17,9 @@ const {
     botCommunityIntroductionService, 
     updateNudgeSubscriptionService,
     checkClubMembershipService,
-    checkIfAdminService
+    checkIfAdminService,
+    ClubActiveScoreService,
+    ClubLeaderboardService
 } = require('../services/userService.js');
 
 
@@ -297,6 +299,46 @@ const checkIfAdmin = async (req, res) => {
     }
 };
 
+const clubActiveScore = async (req, res) => {
+    const { mobile } = req.body;
+
+    try {
+        const result = await ClubActiveScoreService(mobile);
+        return res.status(200).send({
+            success: true,
+            message: 'Club Active Score Retrieved Successfully!',
+            data: result,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            success: false,
+            message: 'Error in fetching club active score',
+            error,
+        });
+    }
+};
+
+const clubLeaderboard = async (req, res) => {
+    const { clubType } = req.body;
+
+    try {
+        const result = await ClubLeaderboardService(clubType);
+        return res.status(200).send({
+            success: true,
+            message: 'Club Active Score Retrieved Successfully!',
+            data: result,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            success: false,
+            message: 'Error in fetching club active score',
+            error,
+        });
+    }
+};
+
 
 module.exports= {
     updateProfile,
@@ -311,6 +353,8 @@ module.exports= {
     botCommunityIntroduction, 
     requestNudgeSubscription,
     checkClubMembership,
-    checkIfAdmin
+    checkIfAdmin,
+    clubActiveScore,
+    clubLeaderboard
 };
 

@@ -8,7 +8,7 @@ const updateProfileService = async (payload) => {
 
 
   try {
-      const query = `
+    const query = `
       INSERT INTO users (first_name, email, mobile, dob, height, weight, exercise_frequency)
       VALUES (?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE
@@ -21,53 +21,53 @@ const updateProfileService = async (payload) => {
         updated_at = NOW();
       `;
 
-      // Execute the query
-      await cubeClubPool.query(query, [first_name, email, mobile, dob, height, weight, exercise_frequency]);
-      return { message: "Profile updated!" };
-      
-      
+    // Execute the query
+    await cubeClubPool.query(query, [first_name, email, mobile, dob, height, weight, exercise_frequency]);
+    return { message: "Profile updated!" };
+
+
   } catch (error) {
-      console.error("Error in updateProfileService:", error);
-      throw error;
+    console.error("Error in updateProfileService:", error);
+    throw error;
   }
 };
 
 const checkProfileCompletionService = async (mobile) => {
   try {
-      const query = `
+    const query = `
           SELECT first_name, email, mobile, dob, height, weight, exercise_frequency 
           FROM users 
           WHERE mobile LIKE CONCAT('%', RIGHT(?, 10))
       `;
 
-      const [rows] = await cubeClubPool.query(query, [mobile]);
+    const [rows] = await cubeClubPool.query(query, [mobile]);
 
-      if (rows.length === 0) {
-          return { isComplete: false, missingFields: ["first_name", "email", "mobile", "dob", "height", "weight", "exercise_frequency"], message: "User not found." };
-      }
+    if (rows.length === 0) {
+      return { isComplete: false, missingFields: ["first_name", "email", "mobile", "dob", "height", "weight", "exercise_frequency"], message: "User not found." };
+    }
 
-      const user = rows[0];
-      const missingFields = [];
+    const user = rows[0];
+    const missingFields = [];
 
-      if (!user.first_name) missingFields.push("first_name");
-      if (!user.email) missingFields.push("email");
-      if (!user.mobile) missingFields.push("mobile");
-      if (!user.dob) missingFields.push("dob");
-      if (!user.height) missingFields.push("height");
-      if (!user.weight) missingFields.push("weight");
-      if (!user.exercise_frequency) missingFields.push("exercise_frequency");
+    if (!user.first_name) missingFields.push("first_name");
+    if (!user.email) missingFields.push("email");
+    if (!user.mobile) missingFields.push("mobile");
+    if (!user.dob) missingFields.push("dob");
+    if (!user.height) missingFields.push("height");
+    if (!user.weight) missingFields.push("weight");
+    if (!user.exercise_frequency) missingFields.push("exercise_frequency");
 
-      const isComplete = missingFields.length === 0;
+    const isComplete = missingFields.length === 0;
 
-      return {
-          isComplete,
-          missingFields,
-          message: isComplete ? "Profile is complete." : "Profile is incomplete. Please provide the missing fields."
-      };
-      
+    return {
+      isComplete,
+      missingFields,
+      message: isComplete ? "Profile is complete." : "Profile is incomplete. Please provide the missing fields."
+    };
+
   } catch (error) {
-      console.error("Error in checkProfileCompletionService:", error);
-      throw error;
+    console.error("Error in checkProfileCompletionService:", error);
+    throw error;
   }
 };
 
@@ -244,9 +244,8 @@ const getLeaderboardService = async (mobile) => {
     const userName = user.first_name || "Unknown";
 
     // Construct the formatted leaderboard string
-    let leaderboardString = `✨ *Your Rank*: ${
-      userRank > 0 ? userRank : "Not ranked"
-    }\n`;
+    let leaderboardString = `✨ *Your Rank*: ${userRank > 0 ? userRank : "Not ranked"
+      }\n`;
     leaderboardString += `👤 *Name*: ${userName}\n`;
     leaderboardString += `💰 *Total Coins*: ${userCoins}🪙\n\n`;
 
@@ -353,26 +352,26 @@ Join us now and take a step toward a healthier you with Cube! 💥
 
 const updateNudgeSubscriptionService = async (mobile, subscribe) => {
   try {
-      // Use LIKE to match the last ten digits of the mobile number
-      const query = `
+    // Use LIKE to match the last ten digits of the mobile number
+    const query = `
           UPDATE users 
           SET nudge_request_subscription = ? 
           WHERE mobile LIKE CONCAT('%', RIGHT(?, 10));
       `;
 
-      // The RIGHT function extracts the last 10 characters from the mobile number
-      await cubeClubPool.query(query, [subscribe, mobile]);
-      
-      return { message: `Nudge subscription updated successfully to ${subscribe}.` };
+    // The RIGHT function extracts the last 10 characters from the mobile number
+    await cubeClubPool.query(query, [subscribe, mobile]);
+
+    return { message: `Nudge subscription updated successfully to ${subscribe}.` };
   } catch (error) {
-      console.error("Error in updateNudgeSubscriptionService:", error);
-      throw error;
+    console.error("Error in updateNudgeSubscriptionService:", error);
+    throw error;
   }
 };
 
 const checkClubMembershipService = async (mobile) => {
   try {
-      const query = `
+    const query = `
           SELECT cm.club_id 
           FROM club_members cm 
           JOIN users u ON cm.user_id = u.id 
@@ -380,64 +379,180 @@ const checkClubMembershipService = async (mobile) => {
           WHERE u.mobile LIKE CONCAT('%', RIGHT(?, 10));
       `;
 
-      const [rows] = await cubeClubPool.query(query, [mobile]);
+    const [rows] = await cubeClubPool.query(query, [mobile]);
 
-      if (rows.length === 0) {
-        console.log("Membership check is working: User is not a member of any club.");
-        return { isMember: false, message: "User is not a member of any club." };
-      }
+    if (rows.length === 0) {
+      console.log("Membership check is working: User is not a member of any club.");
+      return { isMember: false, message: "User is not a member of any club." };
+    }
 
-      const clubs = rows.map(row => ({ club_id: row.club_id, club_name: row.club_name }));
+    const clubs = rows.map(row => ({ club_id: row.club_id, club_name: row.club_name }));
 
-      console.log("Membership check is working: User is a member of", clubs.length, "club(s).");
+    console.log("Membership check is working: User is a member of", clubs.length, "club(s).");
 
-      return {
-          isMember: true,
-          clubs,
-          message: "User is a member of the following clubs."
-      };
-      
+    return {
+      isMember: true,
+      clubs,
+      message: "User is a member of the following clubs."
+    };
+
   } catch (error) {
-      console.error("Error in checkMembershipService:", error);
-      throw error;
+    console.error("Error in checkMembershipService:", error);
+    throw error;
   }
 };
 
 const checkIfAdminService = async (mobile) => {
   try {
-      const query = `
+    const query = `
           SELECT c.admin_id 
           FROM clubs c
           JOIN users u ON c.admin_id = u.id
           WHERE u.mobile LIKE CONCAT('%', RIGHT(?, 10));
       `;
 
-      const [rows] = await cubeClubPool.query(query, [mobile]);
+    const [rows] = await cubeClubPool.query(query, [mobile]);
 
 
-      if (rows.length === 0) {
-        console.log("Admin check is working: User not found or not an admin.");
-        return { isAdmin: false, message: "User not found or not an admin." };
-      }
+    if (rows.length === 0) {
+      console.log("Admin check is working: User not found or not an admin.");
+      return { isAdmin: false, message: "User not found or not an admin." };
+    }
 
-      const adminId = rows[0].admin_id;
-      const isAdmin = adminId !== null;
+    const adminId = rows[0].admin_id;
+    const isAdmin = adminId !== null;
 
-      console.log("Admin check is working: User is", isAdmin ? "an admin." : "not an admin.");
+    console.log("Admin check is working: User is", isAdmin ? "an admin." : "not an admin.");
 
-      return {
-          isAdmin,
-          message: isAdmin ? "User is an admin." : "User is not an admin."
-      };
-      
+    return {
+      isAdmin,
+      message: isAdmin ? "User is an admin." : "User is not an admin."
+    };
+
   } catch (error) {
-      console.error("Error in checkIfAdminService:", error);
-      throw error;
+    console.error("Error in checkIfAdminService:", error);
+    throw error;
   }
 };
 
+const ClubActiveScoreService = async (mobile) => {
+  try {
+    // Query to get user ID and first name from mobile
+    const userIdQuery = `
+      SELECT id, first_name 
+      FROM users 
+      WHERE mobile LIKE CONCAT('%', RIGHT(?, 10))`; // Fetch first_name as well
 
-module.exports = { 
+    // Use destructuring to get user data directly
+    const [[user]] = await cubeClubPool.query(userIdQuery, [mobile]);
+
+    // Check if user exists
+    if (!user) {
+      return { success: false, message: "User not found" };
+    }
+
+    const userId = user.id; // Access the user ID directly
+
+    // Fetch club active scores for the clubs
+    const [clubResults] = await cubeClubPool.query(`
+      SELECT c.club_id, c.club_name, c.club_type, c.club_active_score
+      FROM clubs c
+      JOIN club_members cm ON c.club_id = cm.club_id
+      WHERE cm.user_id = ?
+      GROUP BY c.club_id, c.club_name, c.club_type, c.club_active_score
+    `, [userId]);
+
+
+
+    // Format the output for a motivating presentation
+    const formattedClubs = clubResults.map(club => ({
+      clubName: club.club_name,
+      clubType: club.club_type,
+      club_active_score: parseFloat(club.club_active_score).toFixed(2), // Format score
+    }));
+
+    // Construct the formatted clubs string
+    let clubsString = `🏆 *Your Clubs*:\n\n`;
+
+    formattedClubs.forEach(club => {
+      clubsString += `🌟 *Club Name*: ${club.clubName}\n`;
+      clubsString += `📋 *Type*: ${club.clubType}\n`;
+      clubsString += `📈 *Active Score*: ${club.club_active_score} 📊\n\n`;
+    });
+
+    // Add a motivational message at the end
+    clubsString += `💪 Keep up the great work in your clubs! Your efforts make a difference! 🚀`;
+
+    return {
+      success: true,
+      message: "Club Data",
+      clubs: clubsString, // Add the formatted string to the response
+    };
+
+  } catch (error) {
+    console.error("Error in ClubActiveScoreService:", error);
+    throw error; // Re-throw the error to be caught in the controller
+  }
+};
+
+const ClubLeaderboardService = async (clubType) => {
+  try {
+    // Check if the clubType is valid
+    if (!clubType || !['Guided', 'Customised'].includes(clubType)) {
+      return {
+        success: false,
+        message: 'Invalid club type. Please provide either "Guided" or "Customised".',
+      };
+    }
+
+    // Query to execute the stored procedure to get the leaderboard
+    const [clubResults] = await cubeClubPool.query(
+      `CALL spClubLeaderboard(?)`,
+      [clubType]
+    );
+
+    // Check if any clubs are returned
+    if (!clubResults[0].length) {
+      return {
+        success: false,
+        message: 'No clubs found for the specified club type.',
+      };
+    }
+
+    // Format the output for a motivating presentation
+    const formattedClubs = clubResults[0].map((club) => ({
+      clubName: club.club_name,
+      clubType: clubType,
+      clubActiveScore: parseFloat(club.club_active_score).toFixed(2), // Format the active score
+      totalMembers: club.total_members, // Display total members
+    }));
+
+    // Construct the formatted leaderboard string
+    let clubsString = `🏆 *Club Leaderboard (${clubType} Clubs)*:\n\n`;
+
+    formattedClubs.forEach((club, index) => {
+      const rank = index + 1;
+      clubsString += `${rank}️⃣ *Club Name*: ${club.clubName}\n`;
+      clubsString += `📋 *Type*: ${club.clubType}\n`;
+      clubsString += `📈 *Active Score*: ${club.clubActiveScore} 📊\n`;
+      clubsString += `👥 *Total Members*: ${club.totalMembers}\n\n`;
+    });
+
+    // Add a motivational message at the end
+    clubsString += `💪 Keep climbing the leaderboard! Your efforts are making a difference! 🚀`;
+
+    return {
+      success: true,
+      message: 'Club Leaderboard Data',
+      clubs: clubsString, // Add the formatted string to the response
+    };
+  } catch (error) {
+    console.error('Error in ClubLeaderboardService:', error);
+    throw error; // Re-throw the error to be caught in the controller
+  }
+};
+
+module.exports = {
   updateProfileService,
   checkProfileCompletionService,
   logWorkoutService,
@@ -450,5 +565,7 @@ module.exports = {
   botCommunityIntroductionService,
   updateNudgeSubscriptionService,
   checkClubMembershipService,
-  checkIfAdminService
+  checkIfAdminService,
+  ClubActiveScoreService,
+  ClubLeaderboardService
 };
