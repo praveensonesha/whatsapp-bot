@@ -16,7 +16,8 @@ const {
     getActiveScoreService, 
     botCommunityIntroductionService, 
     updateNudgeSubscriptionService,
-    checkClubMembershipService
+    checkClubMembershipService,
+    checkIfAdminService
 } = require('../services/userService.js');
 
 
@@ -283,6 +284,23 @@ const checkClubMembership = async (req, res) => {
     }
 };
 
+const checkIfAdmin = async (req, res) => {
+    const { mobile } = req.body;
+    console.log("Controller: ",mobile);
+
+    try {
+        const result = await checkIfAdminService(mobile);
+        return res.status(200).send(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            success: false,
+            message: 'Error in checking admin status',
+            error,
+        });
+    }
+};
+
 
 module.exports= {
     updateProfile,
@@ -296,6 +314,7 @@ module.exports= {
     getActiveScore, 
     botCommunityIntroduction, 
     requestNudgeSubscription,
-    checkClubMembership
+    checkClubMembership,
+    checkIfAdmin
 };
 

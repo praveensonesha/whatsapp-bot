@@ -373,7 +373,7 @@ const updateNudgeSubscriptionService = async (phone, subscribe) => {
 const checkClubMembershipService = async (mobile) => {
   try {
       const query = `
-          SELECT cm.club_id, c.club_name 
+          SELECT cm.club_id 
           FROM club_members cm 
           JOIN users u ON cm.user_id = u.id 
           JOIN clubs c ON cm.club_id = c.club_id 
@@ -400,6 +400,38 @@ const checkClubMembershipService = async (mobile) => {
   }
 };
 
+const checkIfAdminService = async (mobile) => {
+  try {
+      const query = `
+          SELECT c.admin_id 
+          FROM clubs c
+          JOIN users u ON c.admin_id = u.id
+          WHERE u.mobile = ?
+      `;
+
+      const [rows] = await cubeClubPool.query(query, [mobile]);
+
+      console.log(rows);
+
+      if (rows.length === 0) {
+          return { isAdmin: false, message: "User not found or not an admin." };
+      }
+
+      const adminId = rows[0].admin_id;
+      const isAdmin = adminId !== null;
+
+      return {
+          isAdmin,
+          message: isAdmin ? "User is an admin." : "User is not an admin."
+      };
+      
+  } catch (error) {
+      console.error("Error in checkIfAdminService:", error);
+      throw error;
+  }
+};
+
+
 module.exports = { 
   updateProfileService,
   checkProfileCompletionService,
@@ -412,5 +444,6 @@ module.exports = {
   getActiveScoreService,
   botCommunityIntroductionService,
   updateNudgeSubscriptionService,
-  checkClubMembershipService
+  checkClubMembershipService,
+  checkIfAdminService
 };
