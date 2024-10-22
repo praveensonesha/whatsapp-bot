@@ -377,7 +377,7 @@ const checkClubMembershipService = async (mobile) => {
           FROM club_members cm 
           JOIN users u ON cm.user_id = u.id 
           JOIN clubs c ON cm.club_id = c.club_id 
-          WHERE u.mobile = ?;
+          WHERE u.mobile LIKE CONCAT('%', RIGHT(?, 10));
       `;
 
       const [rows] = await cubeClubPool.query(query, [mobile]);
@@ -406,7 +406,7 @@ const checkIfAdminService = async (mobile) => {
           SELECT c.admin_id 
           FROM clubs c
           JOIN users u ON c.admin_id = u.id
-          WHERE u.mobile = ?
+          WHERE u.mobile LIKE CONCAT('%', RIGHT(?, 10));
       `;
 
       const [rows] = await cubeClubPool.query(query, [mobile]);
