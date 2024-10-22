@@ -180,7 +180,7 @@ const qnaDocQueryService = async (payload) => {
 };
 
 const checkCoinsService = async (payload) => {
-  const { phone } = payload;
+  const { mobile } = payload;
 
   try {
     // Query to retrieve coins for the user
@@ -191,7 +191,7 @@ const checkCoinsService = async (payload) => {
       `;
 
     // Execute the query
-    const [[result]] = await cubeClubPool.query(query, [phone]);
+    const [[result]] = await cubeClubPool.query(query, [mobile]);
 
     if (result) {
       console.log(`Coins for user: ${result.total_coins}`);
@@ -351,17 +351,17 @@ Join us now and take a step toward a healthier you with Cube! 💥
   }
 };
 
-const updateNudgeSubscriptionService = async (phone, subscribe) => {
+const updateNudgeSubscriptionService = async (mobile, subscribe) => {
   try {
-      // Use LIKE to match the last ten digits of the phone number
+      // Use LIKE to match the last ten digits of the mobile number
       const query = `
           UPDATE users 
           SET nudge_request_subscription = ? 
           WHERE mobile LIKE CONCAT('%', RIGHT(?, 10));
       `;
 
-      // The RIGHT function extracts the last 10 characters from the phone number
-      await cubeClubPool.query(query, [subscribe, phone]);
+      // The RIGHT function extracts the last 10 characters from the mobile number
+      await cubeClubPool.query(query, [subscribe, mobile]);
       
       return { message: `Nudge subscription updated successfully to ${subscribe}.` };
   } catch (error) {

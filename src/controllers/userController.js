@@ -179,10 +179,7 @@ const qnaDocQuery = async(req,res)=>{
 }
 
 const checkCoins = async(req,res)=>{
-    console.log('server call works!');
     const payload = req.body;
-    const {phone} = payload;
-    console.log(phone);
     try {
         const result = await checkCoinsService(payload);
         return res.status(200).send(result);
@@ -253,10 +250,10 @@ const botCommunityIntroduction = async (req, res) => {
 };
 
 const requestNudgeSubscription = async (req, res) => {
-    const { phone, subscribe } = req.body; // Assuming `subscribe` is a boolean indicating subscription status
+    const { mobile, subscribe } = req.body; // Assuming `subscribe` is a boolean indicating subscription status
 
     try {
-        const result = await updateNudgeSubscriptionService(phone, subscribe);
+        const result = await updateNudgeSubscriptionService(mobile, subscribe);
         return res.status(200).send(result);
     } catch (error) {
         console.error(error);
