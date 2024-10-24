@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 require('dotenv').config(); 
-require('./cron/reminder'); 
+require('./cron/nudgeReminder'); 
 require('./cron/fitnessPlan'); 
 require('./cron/fetchProducts');
 
