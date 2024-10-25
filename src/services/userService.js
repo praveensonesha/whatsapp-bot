@@ -350,8 +350,9 @@ Join us now and take a step toward a healthier you with Cube! 💥
   }
 };
 
-const updateNudgeSubscriptionService = async (mobile, subscribe) => {
+const updateNudgeSubscriptionService = async (mobile, subscribe = null) => {
   try {
+    if (subscribe !== null) {
     // Use LIKE to match the last ten digits of the mobile number
     const query = `
           UPDATE users 
@@ -363,11 +364,32 @@ const updateNudgeSubscriptionService = async (mobile, subscribe) => {
     await cubeClubPool.query(query, [subscribe, mobile]);
 
     return { message: `Nudge subscription updated successfully to ${subscribe}.` };
+    
+    } else {
+      // Check the nudge subscription status
+      const checkQuery = `
+        SELECT nudge_request_subscription 
+        FROM users 
+        WHERE mobile LIKE CONCAT('%', RIGHT(?, 10));
+      `;
+      const [rows] = await cubeClubPool.query(checkQuery, [mobile]);
+
+      if (rows.length === 0) {
+        return { message: 'User not found.', nudge_request_subscription: null };
+      }
+
+      const subscriptionStatus = rows[0].nudge_request_subscription;
+      return {
+        message: 'Nudge subscription status retrieved successfully.',
+        nudge_request_subscription: subscriptionStatus,
+      };
+    }
   } catch (error) {
-    console.error("Error in updateNudgeSubscriptionService:", error);
+    console.error("Error in updateOrCheckNudgeSubscriptionService:", error);
     throw error;
   }
 };
+
 
 const checkClubMembershipService = async (mobile) => {
   try {

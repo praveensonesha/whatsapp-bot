@@ -1,12 +1,12 @@
 {
-  "name": "wa-bot",
-  "version": "1.0.0",
+  "name": "whatsapp-bot",
+  "version": "2.0.0",
   "main": "index.js",
   "scripts": {
     "start":"nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Chaitanya Paranjpe",
+  "author": "Praveen Sonesha",
   "license": "MIT",
   "description": "",
   "dependencies": {

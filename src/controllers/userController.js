@@ -252,20 +252,21 @@ const botCommunityIntroduction = async (req, res) => {
 };
 
 const requestNudgeSubscription = async (req, res) => {
-    const { mobile, subscribe } = req.body; // Assuming `subscribe` is a boolean indicating subscription status
-
+    const { mobile, subscribe } = req.body;
+  
     try {
-        const result = await updateNudgeSubscriptionService(mobile, subscribe);
-        return res.status(200).send(result);
+      const result = await updateNudgeSubscriptionService(mobile, subscribe);
+      return res.status(200).send(result);
     } catch (error) {
-        console.error(error);
-        return res.status(500).send({
-            success: false,
-            message: 'Error updating nudge subscription',
-            error,
-        });
+      console.error(error);
+      return res.status(500).send({
+        success: false,
+        message: 'Error processing nudge subscription request',
+        error,
+      });
     }
-};
+  };
+  
 
 const checkClubMembership = async (req, res) => {
     const { mobile } = req.body; 
