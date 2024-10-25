@@ -381,7 +381,7 @@ const updateNudgeSubscriptionService = async (mobile, subscribe = null) => {
       const subscriptionStatus = rows[0].nudge_request_subscription;
       return {
         message: 'Nudge subscription status retrieved successfully.',
-        nudge_request_subscription: subscriptionStatus,
+        nudge_request_subscription: `${subscriptionStatus}`,
       };
     }
   } catch (error) {
