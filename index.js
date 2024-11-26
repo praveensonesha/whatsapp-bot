@@ -5,7 +5,7 @@ require('./cron/nudgeReminder');
 require('./cron/fitnessPlan'); 
 require('./cron/fetchProducts');
 require('./cron/botIntroduction');
-require('./cron/serverActive');
+// require('./cron/serverActive');
 
 
 const userRoutes = require('./src/routes/userRoutes');
